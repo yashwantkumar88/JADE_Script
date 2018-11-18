@@ -17,13 +17,16 @@ router.post('/register', function (req, res) {
     newUser.save(function (err, savedUser) {
         if (err) {
             try{
+                console.log(err);
                 response.data = err;
                 res.send(response);
+                return;
             }catch(err){
                 console.log(err);
             }
         }
         response.success = "1";
+        console.log(savedUser);
         response.data = req.body.username;
         res.send(response);
     });
@@ -32,21 +35,26 @@ router.post('/register', function (req, res) {
 router.post('/login', function (req, res) {
     var username = req.body.username;
     var password = req.body.password;
-
+    var response = {success:"0",data:""};
     //Find user with given credentials in the database
     User.findOne({username: username, password: password}, function (err, user) {
         if (err) {
             try {
-                res.send(err);
+                response.data = err;
+                res.send(response);
+                return;
             } catch (err) {
                 console.log(err);
             }
         }
+        response.success = "1";
         if (!user) {
-            res.send("Not found");
+            response.data = "Not found";
+            res.send(response);
         } else {
             console.log(user);
-            res.send("Found");
+            response.data = "Welcome " + req.body.username;
+            res.send(response);
         }
     });
 });
@@ -78,22 +86,24 @@ router.post('/registerDevice', function (req, res) {
 router.post('/checkDevice', function (req, res) {
     //Find user with given credentials in the database
     var response = {success:"0",data:""};
-    User.findOne({imei: req.body.imei, mac:req.body.mac, ssid:req.body.ssid, os:req.body.os}, function (err, device) {
+    Device.findOne({imei: req.body.imei, mac:req.body.mac, ssid:req.body.ssid, os:req.body.os}, function (err, device) {
         if (err) {
             try {
                 response.data = err;
                 res.send(response);
+                return;
             } catch (err) {
                 console.log(err);
             }
         }
+        response.success = "1";
         if (!device) {
-            response.success = "1";
+            console.log(device);
             response.data = "Not found";
             res.send(response);
         } else {
-            response.success = "1";
-            response.data = "Found";
+            console.log(device);
+            response.data = "Device found in database";
             res.send(response);
         }
     });
